@@ -1,0 +1,6 @@
+{
+  "name": "CleanQuote AI",
+  "description": "AI-powered quotation generator that turns customer cleaning requests into professional, editable service quotes and downloadable PDFs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

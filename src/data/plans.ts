@@ -1,0 +1,65 @@
+import type { PlanDefinition } from '../types/quote';
+
+export const PLANS: PlanDefinition[] = [
+  {
+    id: 'free',
+    name: 'Free',
+    audience: 'For evaluating the workflow',
+    priceLabel: '$0',
+    priceUsd: 0,
+    credits: 2,
+    description: 'Try CleanQuote AI on two real customer inquiries.',
+    features: [
+      '2 AI quotation extractions',
+      'Full editable pricing calculator',
+      'Branded PDF quotation export',
+      'Saved business profile & terms',
+    ],
+  },
+  {
+    id: 'starter',
+    name: 'Starter',
+    audience: 'For solo independent cleaners',
+    priceLabel: '$5',
+    priceUsd: 5,
+    credits: 25,
+    description: 'Built for owner-operators sending weekly quotes.',
+    features: [
+      '25 AI quotation extractions',
+      'Missing-info clarification flags',
+      'Custom business logo on PDFs',
+      'Tax & discount calculation',
+    ],
+  },
+  {
+    id: 'business',
+    name: 'Business',
+    audience: 'For growing residential teams',
+    priceLabel: '$9',
+    priceUsd: 9,
+    credits: 60,
+    description: 'Ideal for active cleaning teams quoting daily.',
+    highlighted: true,
+    features: [
+      '60 AI quotation extractions',
+      'Editable line-item scope drafting',
+      'Multi-currency PDF quotations',
+      'Custom payment & validity terms',
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    audience: 'For high-volume cleaning operators',
+    priceLabel: '$19',
+    priceUsd: 19,
+    credits: 150,
+    description: 'High-volume quotation capacity for busy seasons.',
+    features: [
+      '150 AI quotation extractions',
+      'Full scoping & clarification tracking',
+      'Instant browser-side PDF export',
+      'Lowest per-quote credit cost',
+    ],
+  },
+];
