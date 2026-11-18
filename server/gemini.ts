@@ -128,6 +128,14 @@ export async function extractCleaningRequest(message: string): Promise<GeminiExt
       headers: {
         'User-Agent': 'aistudio-build',
       },
+      retryOptions: {
+        attempts: 4,
+        initialDelay: 2,
+        maxDelay: 10,
+        expBase: 2,
+        jitter: 1,
+        httpStatusCodes: [503],
+      },
     },
   });
 
