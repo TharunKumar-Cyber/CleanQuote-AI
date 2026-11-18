@@ -26,6 +26,7 @@ const EMPTY_EXTRACTED: ExtractedJobDetails = {
   validationMessage: '',
   customerName: '',
   customerEmail: '',
+  serviceAddress: '',
   serviceType: '',
   bedrooms: '',
   bathrooms: '',
@@ -397,6 +398,10 @@ export const QuoteWorkspace: React.FC<QuoteWorkspaceProps> = ({
                   {extracted.customerName || 'Valued Customer'}
                 </div>
                 <div>{extracted.customerEmail || 'No email provided'}</div>
+                <div className="mt-1">
+                  <span className="font-medium text-slate-700">Service Address: </span>
+                  {extracted.serviceAddress || 'Not provided'}
+                </div>
               </div>
 
               <div className="border-t border-slate-200 pt-2.5 space-y-1.5 tabular-nums">
