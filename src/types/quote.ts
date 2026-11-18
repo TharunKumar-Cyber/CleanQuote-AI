@@ -5,6 +5,7 @@ export interface ExtractedJobDetails {
   validationMessage: string;
   customerName: string;
   customerEmail: string;
+  serviceAddress: string;
   serviceType: string;
   bedrooms: string;
   bathrooms: string;
