@@ -110,12 +110,17 @@ export function generateQuotationPdf(input: PdfQuoteInput): void {
   doc.setFontSize(9.5);
   doc.setTextColor(55, 65, 81);
 
+  const serviceAddressLines = doc.splitTextToSize(
+    `Service Address: ${extracted.serviceAddress || 'Not provided'}`,
+    colMid - margin - 8
+  ) as string[];
   const clientLines = [
     extracted.customerName || 'Valued Customer',
     extracted.customerEmail || 'Email not provided',
     extracted.requestedDate
       ? `Requested Date: ${extracted.requestedDate}`
       : 'Requested Date: To be confirmed',
+    ...serviceAddressLines,
   ];
   doc.text(clientLines, margin, y);
 
