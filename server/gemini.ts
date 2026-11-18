@@ -5,6 +5,7 @@ export interface GeminiExtractionResult {
   validationMessage: string;
   customerName: string;
   customerEmail: string;
+  serviceAddress: string;
   serviceType: string;
   bedrooms: string;
   bathrooms: string;
@@ -37,6 +38,11 @@ const extractionSchema = {
       type: Type.STRING,
       description:
         'Customer email address ONLY if explicitly stated in the message; otherwise empty string.',
+    },
+    serviceAddress: {
+      type: Type.STRING,
+      description:
+        'Full address or location where the cleaning service will take place ONLY if explicitly stated; otherwise empty string.',
     },
     serviceType: {
       type: Type.STRING,
@@ -73,7 +79,7 @@ const extractionSchema = {
       type: Type.ARRAY,
       items: { type: Type.STRING },
       description:
-        'Clear checklist of important quoting details missing from the customer message (e.g., property size, number of bathrooms, preferred date, contact email, parking/access info).',
+        'Clear checklist of important quoting details missing from the customer message (e.g., service address, property size, number of bathrooms, preferred date, contact email, parking/access info).',
     },
   },
   required: [
@@ -81,6 +87,7 @@ const extractionSchema = {
     'validationMessage',
     'customerName',
     'customerEmail',
+    'serviceAddress',
     'serviceType',
     'bedrooms',
     'bathrooms',
@@ -97,7 +104,7 @@ You are an assistant for independent residential and light-commercial cleaning b
 Your ONLY job is to extract structured job scoping facts from an unstructured customer inquiry.
 
 STRICT RULES:
-1. NEVER fabricate or guess customer details (name, email, phone, address, dates, bedroom/bathroom counts, or square footage). If not stated in the message, return an empty string "".
+1. NEVER fabricate or guess customer details (name, email, phone, service address, dates, bedroom/bathroom counts, or square footage). If not stated in the message, return an empty string "".
 2. NEVER generate, estimate, or suggest prices, hourly rates, discounts, or total quote amounts.
 3. Identify any important missing details needed to prepare an accurate cleaning quote and list them in "missingInformation".
 4. If the message is empty, nonsensical, or unrelated to cleaning services, set "isValidCleaningRequest" to false and explain briefly in "validationMessage".
@@ -149,6 +156,7 @@ export async function extractCleaningRequest(message: string): Promise<GeminiExt
     validationMessage: typeof parsed.validationMessage === 'string' ? parsed.validationMessage.trim() : '',
     customerName: typeof parsed.customerName === 'string' ? parsed.customerName.trim() : '',
     customerEmail: typeof parsed.customerEmail === 'string' ? parsed.customerEmail.trim() : '',
+    serviceAddress: typeof parsed.serviceAddress === 'string' ? parsed.serviceAddress.trim() : '',
     serviceType: typeof parsed.serviceType === 'string' ? parsed.serviceType.trim() : '',
     bedrooms: typeof parsed.bedrooms === 'string' ? parsed.bedrooms.trim() : '',
     bathrooms: typeof parsed.bathrooms === 'string' ? parsed.bathrooms.trim() : '',
