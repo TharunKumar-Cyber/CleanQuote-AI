@@ -17,6 +17,7 @@ Treat them as the repository's working documentation baseline, with the Phase 0 
 - [Phase 0 review and exit report](PHASE_0_REVIEW.md)
 - [Phase 1 implementation plan](PHASE_1_IMPLEMENTATION_PLAN.md)
 - [Phase 1 authentication and identity design](PHASE_1_AUTHENTICATION_DESIGN.md)
+- [Phase 1 implementation status](PHASE_1_IMPLEMENTATION_STATUS.md)
 - [Repository implementation gap analysis](IMPLEMENTATION_GAP_ANALYSIS.md)
 - [Supabase environment audit](SUPABASE_ENVIRONMENT_AUDIT.md)
 
