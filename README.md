@@ -47,6 +47,12 @@ npm run build
 
 Production-mode `npm start` and `/api/health` still need a dedicated smoke test. No dedicated automated test script currently exists.
 
+## Authentication foundation
+
+The Phase 1 branch includes an initial Supabase email/password Auth screen and an Express `GET /api/auth/me` verification endpoint. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env` using the dedicated CleanQuote development project's URL and publishable key. Never use a service-role/secret key in browser environment variables. The identity SQL migration is staged under `supabase/migrations/` but has **not** been applied. Review `docs/PHASE_1_IMPLEMENTATION_STATUS.md` before applying it.
+
+After changing `package.json`, run `npm install` to regenerate `package-lock.json`; do not use `npm ci` until the lockfile has been updated.
+
 ## API
 - `GET /api/health`: server health and Gemini configuration state.
 - `POST /api/extract-quote`: accepts a cleaning-request message and returns extracted fields.

@@ -1,0 +1,35 @@
+name: Phase 1 foundation checks
+
+on:
+  push:
+    branches:
+      - phase-1/identity-foundation-design
+  pull_request:
+    branches:
+      - main
+      - phase-0/repository-audit
+      - phase-1/identity-foundation-design
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase1-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Type-check
+        run: npm run lint
+      - name: Build
+        run: npm run build
