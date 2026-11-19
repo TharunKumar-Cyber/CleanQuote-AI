@@ -147,3 +147,12 @@ References:
 ## 12. Explicit non-actions
 
 This document does not create or alter tables, policies, functions, triggers, Auth providers, redirect URLs, SMTP settings, API grants, Storage buckets, application code, or production configuration. The next implementation gate is a reviewed minimal migration and a secure Auth integration plan, followed by explicit approval before applying DDL.
+
+
+## 13. Clarification from current documentation review
+
+The Auth client should explicitly configure the chosen `flowType: 'pkce'` rather than assuming the SDK default. The general Supabase OAuth 2.1 PKCE guide concerns third-party OAuth clients, so the implementation must follow the Supabase Auth JavaScript client guide for email/password and recovery rather than copy the third-party OAuth-server endpoints.
+
+For Express verification, select and test the current Supabase-supported verification path against this project's signing-key mode. Do not assume an older shared JWT secret exists or embed one in the app. The JWT guide documents the issuer, expiry, subject, and signing-key model. If using local JWT/JWKS verification, validate signature, allowed algorithm, issuer, expiry, and key ID; if using an Auth user lookup, handle network/provider failure explicitly and cache only within a deliberately reviewed security policy.
+
+**CLI v3 warning:** Supabase CLI v3 became the default release in November 2026. Database commands such as `db push`, `db pull`, `db dump`, `migration list`, and `gen types` target the local stack by default; hosted changes require explicit `--remote` and interactive confirmation (or `--yes` in unattended workflows). Do not run remembered v2 commands blindly. Check `supabase --version` and the installed command's `--help` before any CLI action. See [CLI v3 migration guide](https://supabase.com/docs/guides/local-development/cli/migrating-to-v3) and [Nov 4, 2026 breaking-change entry](https://supabase.com/changelog?types=breaking-change).
