@@ -52,6 +52,11 @@ Production-mode `npm start` and `/api/health` still need a dedicated smoke test.
 - `POST /api/extract-quote`: accepts a cleaning-request message and returns extracted fields.
 
 ## Environment variables
+- `VITE_SUPABASE_URL`: CleanQuote development Supabase project URL.
+- `VITE_SUPABASE_PUBLISHABLE_KEY`: Supabase publishable key (safe for browser use). Never use a service-role/secret key in the browser.
+- The Express API uses these same values to verify access tokens with Supabase Auth.
+
+After adding or changing Vite environment variables, restart the development server.
 - `GEMINI_API_KEY`: required for Gemini extraction.
 - `PORT`: optional; defaults to 3000.
 - `NODE_ENV=production`: serves built frontend from `dist/`.

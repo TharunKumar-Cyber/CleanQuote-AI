@@ -1,4 +1,4 @@
-export type AppView = 'landing' | 'workspace' | 'settings' | 'plans';
+export type AppView = 'landing' | 'workspace' | 'settings' | 'plans' | 'auth';
 
 export interface ExtractedJobDetails {
   isValidCleaningRequest: boolean;
