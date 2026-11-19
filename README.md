@@ -1,20 +1,71 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# CleanQuote AI
 
-# Run and deploy your AI Studio app
+CleanQuote AI currently contains an AI-assisted cleaning quotation workspace. The longer-term direction is an Australia-first home-cleaning marketplace, starting in Sydney with one cleaner per booking. Customer/cleaner accounts, verification, bookings, matching, maps, payments, payouts, and operations are planned and are **not implemented yet**.
 
-This contains everything you need to run your app locally.
+## Current application
+- React 19 + TypeScript + Vite frontend.
+- Express + TypeScript backend.
+- Gemini-powered cleaning-request extraction.
+- Editable quotation details, manual line-item pricing, and browser-generated PDFs.
+- Business settings and demo credits currently use browser-local storage.
+- No live marketplace payments, cleaner onboarding, booking/matching engine, or marketplace database schema is deployed.
 
-View your app in AI Studio: https://ai.studio/apps/aa8c45a4-c383-4c30-a1d4-1cbb01dac20e
+## Requirements
+- Node.js 24 (verified environment: Node.js 24.12.0).
+- npm.
+- Gemini API key for AI extraction. The workspace can be explored without a configured key, but extraction will return a configuration message.
 
-## Run Locally
+Use npm and the committed `package-lock.json`. The repository contains a stale `bun.lock`; do not use Bun until it is reconciled.
 
-**Prerequisites:**  Node.js
+## Local setup (Windows PowerShell)
+1. Open PowerShell in the repository directory.
+2. Install dependencies:
+   ```powershell
+   npm install
+   ```
+3. Create your local environment file:
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+4. Open `.env` in VS Code and replace the placeholder `GEMINI_API_KEY`. Keep `.env` private; it is ignored by Git. Never paste the key into chat or commit it.
+5. Start:
+   ```powershell
+   npm run dev
+   ```
+6. Open http://localhost:3000.
 
+## Verification
+```powershell
+npm run lint
+npm run build
+```
+- `npm run dev`: Express server with Vite development middleware.
+- `npm start`: Node server entry point; production mode serves `dist/` when `NODE_ENV=production`.
+- `npm run build`: builds frontend into `dist/`.
+- `npm run preview`: Vite preview server.
+- `npm run lint`: TypeScript check (`tsc --noEmit`).
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Production-mode `npm start` and `/api/health` still need a dedicated smoke test. No dedicated automated test script currently exists.
+
+## API
+- `GET /api/health`: server health and Gemini configuration state.
+- `POST /api/extract-quote`: accepts a cleaning-request message and returns extracted fields.
+
+## Environment variables
+- `GEMINI_API_KEY`: required for Gemini extraction.
+- `PORT`: optional; defaults to 3000.
+- `NODE_ENV=production`: serves built frontend from `dist/`.
+- `DISABLE_HMR`: disables Vite HMR when set to `true`.
+
+Never commit `.env`, API keys, database passwords, Supabase service-role/secret keys, payment secrets, or production data.
+
+## Documentation
+See [`docs/`](docs/) for product requirements, roadmap, architecture, conceptual database design, booking lifecycle, payment/pricing, security/privacy, audits, Phase 0 review, and Phase 1 implementation plan.
+
+## Scope guardrails
+- Australia first, Sydney first.
+- One cleaner per booking in MVP.
+- Team bookings and international expansion are future phases.
+- Preserve the existing quotation workflow.
+- AI extraction structures requests; future server-side pricing remains authoritative.
+- Schema/marketplace features are not complete until migrations, authorization/RLS, tests, and operational behaviour are verified.
