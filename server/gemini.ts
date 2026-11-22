@@ -129,9 +129,9 @@ export async function extractCleaningRequest(message: string): Promise<GeminiExt
         'User-Agent': 'aistudio-build',
       },
       retryOptions: {
-        attempts: 4,
-        initialDelay: 2,
-        maxDelay: 10,
+        attempts: 2,
+        initialDelay: 1,
+        maxDelay: 2,
         expBase: 2,
         jitter: 1,
         httpStatusCodes: [503],
@@ -140,7 +140,7 @@ export async function extractCleaningRequest(message: string): Promise<GeminiExt
   });
 
   const response = await ai.models.generateContent({
-    model: 'gemini-4-hydrogen',
+    model: 'gemini-3.5-flash-lite',
     contents: `Extract structured cleaning job details from the following customer message:\n\n"""\n${message}\n"""`,
     config: {
       systemInstruction: SYSTEM_INSTRUCTION,
