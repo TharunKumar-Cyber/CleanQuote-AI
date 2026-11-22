@@ -10,11 +10,9 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: createClientMock,
 }));
 
-function createRequest(token?: string) {
+function createRequest(authorization?: string) {
   return {
-    header: vi.fn().mockReturnValue(
-      token ? `Bearer ${token}` : undefined,
-    ),
+    header: vi.fn().mockReturnValue(authorization),
   } as unknown as Request;
 }
 
@@ -56,6 +54,27 @@ describe('requireAuth middleware', () => {
     expect(getUserMock).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ['a non-bearer authorization scheme', 'Basic abc123'],
+    ['a bearer scheme without a token', 'Bearer'],
+    ['a bearer scheme with only whitespace', 'Bearer     '],
+  ])('rejects %s without contacting Supabase', async (_description, authorization) => {
+    const { requireAuth } = await import('./auth');
+    const req = createRequest(authorization);
+    const res = createResponse();
+    const next = vi.fn() as NextFunction;
+
+    await requireAuth(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      code: 'AUTH_REQUIRED',
+      error: 'A valid bearer access token is required.',
+    });
+    expect(next).not.toHaveBeenCalled();
+    expect(getUserMock).not.toHaveBeenCalled();
+  });
+
   it('rejects invalid or expired sessions', async () => {
     getUserMock.mockResolvedValue({
       data: { user: null },
@@ -63,7 +82,7 @@ describe('requireAuth middleware', () => {
     });
 
     const { requireAuth } = await import('./auth');
-    const req = createRequest('invalid-token');
+    const req = createRequest('Bearer invalid-token');
     const res = createResponse();
     const next = vi.fn() as NextFunction;
 
@@ -85,7 +104,7 @@ describe('requireAuth middleware', () => {
     });
 
     const { requireAuth } = await import('./auth');
-    const req = createRequest('valid-test-token');
+    const req = createRequest('bEaReR   valid-test-token  ');
     const res = createResponse();
     const next = vi.fn() as NextFunction;
 
@@ -93,6 +112,9 @@ describe('requireAuth middleware', () => {
 
     expect(getUserMock).toHaveBeenCalledWith('valid-test-token');
     expect(req.authUser).toEqual(verifiedUser);
+    expect(req.authUser).not.toHaveProperty('app_metadata');
+    expect(req.authUser).not.toHaveProperty('user_metadata');
+    expect(req.authUser).not.toHaveProperty('role');
     expect(next).toHaveBeenCalledOnce();
     expect(res.status).not.toHaveBeenCalled();
   });
@@ -101,7 +123,7 @@ describe('requireAuth middleware', () => {
     getUserMock.mockRejectedValue(new Error('Provider unavailable'));
 
     const { requireAuth } = await import('./auth');
-    const req = createRequest('test-token');
+    const req = createRequest('Bearer test-token');
     const res = createResponse();
     const next = vi.fn() as NextFunction;
 
