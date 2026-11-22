@@ -16,7 +16,9 @@ import { PlansCreditsView } from './components/PlansCreditsView';
 import { AuthView } from './components/AuthView';
 
 export function App() {
-  const [currentView, setCurrentView] = useState<AppView>('landing');
+  const [currentView, setCurrentView] = useState<AppView>(() =>
+    new URLSearchParams(window.location.search).get('auth') === 'reset' ? 'auth' : 'landing'
+  );
   const [businessSettings, setBusinessSettings] = useState<BusinessSettings>(() => loadBusinessSettings());
   const [credits, setCredits] = useState<CreditState>(() => loadCreditState());
 
