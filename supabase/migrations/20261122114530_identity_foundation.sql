@@ -20,6 +20,18 @@ create table if not exists public.user_roles (
 );
 
 create index if not exists user_roles_user_id_idx on public.user_roles(user_id);
+-- Backfill existing Auth users.
+insert into public.profiles (id, full_name)
+select
+  id,
+  nullif(left(trim(coalesce(raw_user_meta_data ->> 'full_name', '')), 100), '')
+from auth.users
+on conflict (id) do nothing;
+
+insert into public.user_roles (user_id, role)
+select id, 'customer'
+from auth.users
+on conflict (user_id, role) do nothing;
 
 alter table public.profiles enable row level security;
 alter table public.user_roles enable row level security;
