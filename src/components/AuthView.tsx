@@ -12,6 +12,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onBack }) => {
     new URLSearchParams(window.location.search).get('auth') === 'reset' ? 'reset_password' : 'sign_in'
   );
   const [session, setSession] = useState<Session | null>(null);
+  const [recoveryReady, setRecoveryReady] = useState(false);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +24,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onBack }) => {
     if (!supabase) return;
     const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
       setSession(nextSession);
-      if (event === 'PASSWORD_RECOVERY') setMode('reset_password');
+      if (event === 'PASSWORD_RECOVERY') {
+        setRecoveryReady(true);
+        setMode('reset_password');
+        setError('');
+        setMessage('');
+      } else if (event === 'SIGNED_OUT') {
+        setRecoveryReady(false);
+      }
     });
     void supabase.auth.getSession().then(({ data }) => setSession(data.session));
     return () => listener.subscription.unsubscribe();
@@ -58,10 +66,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onBack }) => {
         if (authError) throw authError;
         setMessage('If the address is registered, a password recovery email will arrive shortly.');
       } else {
+        if (!recoveryReady) {
+          throw new Error('Open the password recovery link from your email in this browser before choosing a new password.');
+        }
         const { error: authError } = await supabase.auth.updateUser({ password });
         if (authError) throw authError;
         window.history.replaceState({}, document.title, window.location.pathname);
-        setMode('sign_in'); setPassword('');
+        setMode('sign_in'); setPassword(''); setRecoveryReady(false);
         setMessage('Password updated. Please sign in with your new password.');
       }
     } catch (err) {
@@ -106,6 +117,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onBack }) => {
             <button type="button" disabled={busy} onClick={() => void signOut()} className="w-full rounded-lg bg-slate-900 text-white py-3 font-semibold disabled:opacity-50">
               {busy ? 'Signing out…' : <><LogOut className="inline w-4 h-4 mr-2" />Sign out</>}
             </button>
+          </div>
+        ) : mode === 'reset_password' && !recoveryReady ? (
+          <div className="space-y-4">
+            <p role="alert" className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-900">
+              A password recovery session has not been established. Open the newest recovery link from your email in this same browser. Do not use this page by navigating to it directly.
+            </p>
           </div>
         ) : (
           <form onSubmit={(event) => void submit(event)} className="space-y-4">
