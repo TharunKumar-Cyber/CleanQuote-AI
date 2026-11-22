@@ -24,12 +24,13 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
   const header = req.header('authorization');
   const match = header?.match(/^Bearer\s+(.+)$/i);
-  if (!match) {
+  const accessToken = match?.[1].trim();
+  if (!accessToken) {
     res.status(401).json({ code: 'AUTH_REQUIRED', error: 'A valid bearer access token is required.' });
     return;
   }
   try {
-    const { data, error } = await authClient.auth.getUser(match[1]);
+    const { data, error } = await authClient.auth.getUser(accessToken);
     if (error || !data.user) {
       res.status(401).json({ code: 'INVALID_SESSION', error: 'Your session is invalid or expired. Please sign in again.' });
       return;
