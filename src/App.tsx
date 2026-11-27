@@ -40,7 +40,9 @@ export function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
-      setAuthStatus(nextSession ? 'checking' : 'unauthenticated');
+      setAuthStatus((currentStatus) => nextSession
+        ? currentStatus === 'authenticated' ? 'authenticated' : 'checking'
+        : 'unauthenticated');
     });
 
     return () => subscription.unsubscribe();
