@@ -9,6 +9,7 @@ import type {
 } from '../types/quote';
 import { calculateQuoteTotals, formatMoney } from '../utils/calculations';
 import { generateQuotationPdf } from '../utils/pdfGenerator';
+import { supabase } from '../lib/supabase';
 import { CustomerRequestPanel } from './CustomerRequestPanel';
 import { ExtractedInfoPanel } from './ExtractedInfoPanel';
 import { PricingEditorPanel } from './PricingEditorPanel';
@@ -108,9 +109,21 @@ export const QuoteWorkspace: React.FC<QuoteWorkspaceProps> = ({
 
     setIsLoading(true);
     try {
+      if (!supabase) {
+        setError('Authentication is not configured. Please contact the administrator.');
+        return;
+      }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        setError('Your session has expired. Please sign in again.');
+        return;
+      }
       const response = await fetch('/api/extract-quote', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({ message: trimmed }),
       });
 
