@@ -48,13 +48,14 @@ Prepare an ERD and minimal migration for a profile linked to `auth.users`, trust
 Enable RLS on every exposed application table. Define explicit grants and ownership-aware policies. Test cross-customer read/update denial, cleaner privilege boundaries, admin self-assignment denial, anonymous access denial, and signed-in ownership. Review views/functions for RLS bypass; prefer invoker security.
 
 ### F. Auth UX and protected API
-Implement sign-up, confirmation, sign-in, sign-out, recovery, and session-expiry UX. Protected Express routes validate real identity and role. Handle duplicate accounts, expired links, rate limits, invalid sessions, and provider outages. Preserve existing local quote data.
+Implement sign-up, confirmation, sign-in, sign-out, recovery, and session-expiry UX. The landing page and account/sign-in screen remain public; Quote Workspace, Business Settings, and Plans & Credits require a verified signed-in session. Preserve the intended destination through sign-in. Protected Express routes validate real identity and role; quote extraction must reject direct unauthenticated requests as well as the UI being gated. Handle duplicate accounts, expired links, rate limits, invalid sessions, and provider outages. Preserve existing local quote data.
 
 ### G. Verification and handoff
 Run type-check, tests, build, and Supabase security advisor. Verify role boundaries with multiple test accounts, logout/refresh/recovery/revocation, document setup and rollback/recovery, commit on feature branch, and prepare a PR. Do not merge to `main` without release review.
 
 ## Acceptance criteria
 - Customer can register, confirm, sign in, recover access, and sign out.
+- Public landing/account screens remain accessible; protected workspace/settings/plans views and quote extraction require a verified session.
 - Cleaner identity can exist without self-approval or bypassing future verification.
 - Admin privileges cannot be self-assigned.
 - Protected API derives identity from a verified session/token.
