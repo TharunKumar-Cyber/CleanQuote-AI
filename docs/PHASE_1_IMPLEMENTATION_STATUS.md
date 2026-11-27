@@ -1,13 +1,13 @@
 # Phase 1 — Identity Foundation Implementation Status
 
-**Last verified:** 2026-11-27  
+**Last updated:** 2026-11-27  
 **Branch:** `phase-1/identity-foundation-design`  
 **Overall status:** Foundation implemented; verification is green; remaining acceptance gates are documented below. Phase 1 is not yet complete.
 
 ## Current verification
 
 - Local Git working tree was clean before verification; branch was up to date with origin.
-- Local `npm test`: 8/8 authentication middleware tests passed.
+- Local `npm test`: 8/8 authentication middleware tests passed at the prior checkpoint. New view-access tests were added with the protected routing change and are awaiting a fresh CI/local run.
 - Local `npm run lint` (`tsc --noEmit`): passed.
 - Local `npm run build`: passed (Vite transformed 1,922 modules; build completed in 1.10s).
 - GitHub Actions workflow **Phase 1 foundation checks** passed for commit `6eaca88a7c77045ef83c05c050277be9b8c256fc`. The verify job's install, tests, type-check, and build steps all succeeded.
@@ -22,7 +22,10 @@
 - Health endpoint reports whether Supabase auth environment variables are configured without returning key material.
 - Identity migration creates `profiles` and `user_roles`, enables RLS, restricts client grants, and creates a profile plus basic customer role for Auth users.
 - Role assignment is not writable by the signed-in user. Cleaner and admin roles require a separate trusted administrative process.
-- Existing quotation extraction remains unauthenticated and its access requirements have not been changed.
+- App-level session state now gates Quote Workspace, Business Settings, and Plans & Credits. The landing page and Account/sign-in screen remain public.
+- Protected views are hidden until the stored session token is verified with Supabase `getClaims`; navigation remembers the requested destination and returns the user there after successful sign-in.
+- The `/api/extract-quote` endpoint now uses the existing `requireAuth` middleware, and the workspace sends the current Supabase bearer access token. Direct unauthenticated calls are rejected by the API.
+- Sign-up/sign-in with an immediate session returns the user to their requested protected view (Quote Workspace by default). Sign-out removes access to protected views.
 - GitHub Actions checks install dependencies, run tests, type-check, and build.
 
 ## Supabase project and migration verification
@@ -67,7 +70,8 @@ Catalog inspection on 2026-11-27 confirmed:
 - Complete a documented backup/export and restore procedure before relying on persistent user data; confirm the exact backup method available for the current plan.
 - Verify live password recovery after the rate limit clears.
 - Add real multi-user integration tests using separate customer identities and real access tokens; verify cross-user API and RLS denial.
-- Decide and implement role-aware protected frontend route gating and a trusted cleaner/admin role-assignment/bootstrap procedure, or explicitly document any deliberately deferred portion in the approved Phase 1 scope.
+- Run the new view-access unit tests and full CI after the authenticated-view / quote-extraction protection change; manually test unauthenticated navigation, sign-in return destination, refresh persistence, sign-out, and direct unauthenticated API rejection.
+- Role-aware cleaner/admin route gating remains deferred until the trusted cleaner/admin role-assignment/bootstrap procedure is approved. Current gating is authentication-only; all signed-in users currently enter as customers.
 - Review local lockfile/package-manager consistency and ensure CI uses the intended reproducible install strategy.
 - Review the outstanding Supabase security/performance advisor findings and record decisions.
 - Complete final regression tests for quotation extraction, Pricing Editor, and PDF export.
@@ -77,5 +81,5 @@ Catalog inspection on 2026-11-27 confirmed:
 
 - User-editable Auth `raw_user_meta_data` is used only for a display name, never for authorization.
 - New Auth users receive only the basic `customer` role.
-- The Express protected endpoint asks Supabase Auth to verify each access token. Measure production load before considering a different verification/caching strategy.
+- The Express protected endpoints (`/api/auth/me` and `/api/extract-quote`) ask Supabase Auth to verify each access token. Measure production load before considering a different verification/caching strategy. The frontend gate is a user-experience control; API middleware remains the security boundary.
 - The Phase 1 boundary remains identity and foundation only. Bookings, matching, availability, location tracking, payments, commissions, payouts, cleaner documents, maps, notifications, and production launch remain out of scope.
