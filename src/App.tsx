@@ -20,15 +20,34 @@ import { AuthView } from './components/AuthView';
 
 type AuthStatus = 'checking' | 'authenticated' | 'unauthenticated';
 
+const LAST_PROTECTED_VIEW_KEY = 'cleanquote:last-protected-view';
+
+function getInitialView(): AppView {
+  if (new URLSearchParams(window.location.search).get('auth') === 'reset') return 'auth';
+
+  const savedView = window.sessionStorage.getItem(LAST_PROTECTED_VIEW_KEY);
+  if (savedView === 'workspace' || savedView === 'settings' || savedView === 'plans') {
+    return savedView;
+  }
+
+  return 'landing';
+}
+
 export function App() {
-  const [currentView, setCurrentView] = useState<AppView>(() =>
-    new URLSearchParams(window.location.search).get('auth') === 'reset' ? 'auth' : 'landing'
-  );
+  const [currentView, setCurrentView] = useState<AppView>(getInitialView);
   const [pendingView, setPendingView] = useState<AppView | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [authStatus, setAuthStatus] = useState<AuthStatus>('checking');
   const [businessSettings, setBusinessSettings] = useState<BusinessSettings>(() => loadBusinessSettings());
   const [credits, setCredits] = useState<CreditState>(() => loadCreditState());
+
+  // Remember the last protected destination for this browser tab so refresh
+  // restores it only after the existing Supabase session is verified.
+  useEffect(() => {
+    if (requiresAuthenticatedUser(currentView)) {
+      window.sessionStorage.setItem(LAST_PROTECTED_VIEW_KEY, currentView);
+    }
+  }, [currentView]);
 
   // Subscribe first so initial-session, sign-in, refresh, recovery, and sign-out
   // events all update the same application-level identity state.
