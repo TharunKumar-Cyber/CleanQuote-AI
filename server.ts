@@ -20,7 +20,7 @@ async function startServer() {
     res.json({ user: req.authUser });
   });
 
-  app.post('/api/extract-quote', async (req, res) => {
+  app.post('/api/extract-quote', requireAuth, async (req, res) => {
     const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
     if (!message) {
       res.status(400).json({ code: 'INVALID_INPUT', error: 'Please paste a customer message before extracting job details.' });
