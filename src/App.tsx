@@ -22,20 +22,23 @@ type AuthStatus = 'checking' | 'authenticated' | 'unauthenticated';
 
 const LAST_PROTECTED_VIEW_KEY = 'cleanquote:last-protected-view';
 
+function getSavedProtectedView(): AppView | null {
+  const savedView = window.sessionStorage.getItem(LAST_PROTECTED_VIEW_KEY);
+  return savedView === 'workspace' || savedView === 'settings' || savedView === 'plans'
+    ? savedView
+    : null;
+}
+
 function getInitialView(): AppView {
   if (new URLSearchParams(window.location.search).get('auth') === 'reset') return 'auth';
-
-  const savedView = window.sessionStorage.getItem(LAST_PROTECTED_VIEW_KEY);
-  if (savedView === 'workspace' || savedView === 'settings' || savedView === 'plans') {
-    return savedView;
-  }
-
-  return 'landing';
+  return getSavedProtectedView() ?? 'landing';
 }
 
 export function App() {
   const [currentView, setCurrentView] = useState<AppView>(getInitialView);
-  const [pendingView, setPendingView] = useState<AppView | null>(null);
+  const [pendingView, setPendingView] = useState<AppView | null>(() =>
+    new URLSearchParams(window.location.search).get('auth') === 'reset' ? null : getSavedProtectedView()
+  );
   const [session, setSession] = useState<Session | null>(null);
   const [authStatus, setAuthStatus] = useState<AuthStatus>('checking');
   const [businessSettings, setBusinessSettings] = useState<BusinessSettings>(() => loadBusinessSettings());
