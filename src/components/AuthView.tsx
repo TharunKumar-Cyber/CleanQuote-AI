@@ -5,9 +5,9 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 type AuthMode = 'sign_in' | 'sign_up' | 'forgot_password' | 'reset_password';
 
-interface AuthViewProps { onBack: () => void; }
+interface AuthViewProps { onBack: () => void; onAuthenticated: (session: Session) => void; }
 
-export const AuthView: React.FC<AuthViewProps> = ({ onBack }) => {
+export const AuthView: React.FC<AuthViewProps> = ({ onBack, onAuthenticated }) => {
   const [mode, setMode] = useState<AuthMode>(() =>
     new URLSearchParams(window.location.search).get('auth') === 'reset' ? 'reset_password' : 'sign_in'
   );
@@ -52,12 +52,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onBack }) => {
           },
         });
         if (authError) throw authError;
-        if (data.session) setSession(data.session);
+        if (data.session) { setSession(data.session); onAuthenticated(data.session); }
         else setMessage('Account created. Check your email to confirm your address before signing in.');
       } else if (mode === 'sign_in') {
         const { data, error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (authError) throw authError;
         setSession(data.session);
+        onAuthenticated(data.session);
         setMessage('You are signed in.');
       } else if (mode === 'forgot_password') {
         const { error: authError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -113,7 +114,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onBack }) => {
         {session ? (
           <div className="space-y-4">
             <p className="text-sm text-slate-700">Signed in as <strong>{session.user.email}</strong>.</p>
-            <p className="text-xs text-slate-500">Your identity is authenticated. Customer/cleaner role permissions will be enabled after the reviewed identity migration is applied.</p>
+            <p className="text-xs text-slate-500">Your account is signed in. You can now open your quotation workspace and account settings.</p>
             <button type="button" disabled={busy} onClick={() => void signOut()} className="w-full rounded-lg bg-slate-900 text-white py-3 font-semibold disabled:opacity-50">
               {busy ? 'Signing out…' : <><LogOut className="inline w-4 h-4 mr-2" />Sign out</>}
             </button>
